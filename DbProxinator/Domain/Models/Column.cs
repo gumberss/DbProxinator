@@ -4,24 +4,26 @@ namespace Domain.Models
 {
     public class Column
     {
-        public Column(String columnName)
+        public Column(int id, String columnName)
         {
+            Id = id;
             ColumnName = columnName;
         }
 
-        public String ColumnName { get; }
+        public int Id { get; set; }
 
-        public byte SystemTypeId { get; }
+        public String ColumnName { get; set; }
 
-        public String TypeName { get; }
+        public byte SystemTypeId { get; set; }
 
-        public short MaxLength { get; }
+        public String TypeName { get; set; }
 
-        public byte Precision { get; }
+        public short MaxLength { get; set; }
 
-        public bool IsNullable { get; }
+        public byte Precision { get; set; }
 
-        public bool IsIdentity { get; }
+        public bool IsNullable { get; set; }
 
+        public bool IsIdentity { get; set; }
     }
 }

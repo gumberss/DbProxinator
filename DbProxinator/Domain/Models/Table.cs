@@ -5,11 +5,14 @@ namespace Domain.Models
 {
     public class Table
     {
-        public Table(string schema, string name)
+        public Table(int id, string schema, string name)
         {
+            Id = id;
             Schema = schema;
             Name = name;
         }
+
+        public long Id { get; set; }
 
         public String Schema { get; set; }
 

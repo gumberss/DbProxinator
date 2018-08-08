@@ -4,6 +4,10 @@ namespace Domain.Entities
 {
     public class TableSchemaEntity
     {
+        public int TableId { get; set; }
+
+        public int ColumnId { get; set; }
+
         public String TableSchema { get; set; }
 
         public String TableName { get; set; }

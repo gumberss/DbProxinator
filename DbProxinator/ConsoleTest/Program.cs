@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using Application.Parsers;
+using Domain.Entities;
+using Domain.Interfaces.Parsers;
 using Infraestructure.Manager;
 using System;
 
@@ -11,7 +13,9 @@ namespace ConsoleTest
             var connString = @"data source=localhost; initial catalog=ProxinatorTest;persist security info=True; Integrated Security=SSPI";
 
             var query = @"SELECT sch.name as TableSchema,
+						obj.object_id as tableId,
 	                    obj.name as tableName,
+						cols.column_id as ColumnId,
 		                cols.name as ColumnName, 
 		                cols.system_type_id SystemTypeId, 
 		                sysType.name TypeName, 
@@ -27,7 +31,12 @@ namespace ConsoleTest
                 ";
             var sqlManager = new SqlManager(connString);
 
-            var list = sqlManager.ExecuteReader<TableSchemaEntity>(null, query);
+            var list = sqlManager.ExecuteReader<TableSchemaEntity>(query);
+
+            ITableSchemaParser tableParser = new TableSchemaParser();
+
+            var businessData = tableParser.Parse(list);
+
         }
     }
 }
