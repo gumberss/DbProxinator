@@ -4,8 +4,6 @@ using System.Collections;
 
 using System.Data.Common;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace Infraestructure.Manager
 {
     public class Nested
@@ -18,19 +16,6 @@ namespace Infraestructure.Manager
 
             if (!_entitiesList.ContainsKey(entityType.Name))
                 _entitiesList.Add(entityType.Name, entityType);
-        }
-
-        public T FillEntities<T>(NestedLine nestedProperties) where T : class, new()
-        {
-            var mainEntityName = nestedProperties.LevelName(1);
-
-            if (!_entitiesList.ContainsKey(mainEntityName)) return null;
-
-            var propertyEntityType = _entitiesList[mainEntityName];
-
-            var propEntity = Activator.CreateInstance(propertyEntityType);
-
-            return (T)Match(nestedProperties, propEntity, propertyEntityType, 2);
         }
 
         public NestedEntities BuildNestedEntities(NestedLines nestedLines, String entityName, NestedEntity parent, int level = 1)
@@ -118,57 +103,12 @@ namespace Infraestructure.Manager
                     }
                 }
 
-                returnEntities.Add((object)entity);
+                returnEntities.Add(entity);
             }
 
             return returnEntities;
         }
-
-        private object Match(NestedLine nestedFields, object entity, Type entityType, int level)
-        {
-            var properties = entityType.GetProperties();
-
-            var entityName = entityType.Name;
-
-            var fields = nestedFields.FieldsByLevel(level);
-
-            var id = nestedFields.GetId(entityName, level);
-
-            //NestedEntity nestedEntity = new NestedEntity(id, entityName, entityType);
-
-            //var nestedEntities = new NestedEntities();
-            //nestedEntities.Add(nestedEntity);
-
-            foreach (var prop in properties)
-            {
-                var currentField = fields.FirstOrDefault(x => x.Name[level].Equals(prop.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                if (currentField == null) continue;
-
-                if (currentField.Type.GUID != prop.PropertyType.GUID) continue;
-
-                prop.SetValue(entity, currentField.Value);
-            }
-
-            var classProperties = properties.Where(x => x.PropertyType.IsClass);
-
-            foreach (var prop in classProperties)
-            {
-                if (!_entitiesList.ContainsKey(prop.Name)) continue;
-
-                var propertyEntityType = _entitiesList[prop.Name];
-
-                var propEntity = Activator.CreateInstance(propertyEntityType);
-
-                var propValue = Match(nestedFields, propEntity, propertyEntityType, level + 1);
-
-                prop.SetValue(entity, propValue);
-            }
-
-            return entity;
-        }
     }
-
 
     public class NestedLine
     {
@@ -183,7 +123,7 @@ namespace Infraestructure.Manager
 
         public static NestedLine FillFields(DbDataReader reader)
         {
-            List<NestedField> _fields = new List<NestedField>();
+            List<NestedField> fields = new List<NestedField>();
 
             for (int i = 0; i < reader.FieldCount; i++)
             {
@@ -192,10 +132,10 @@ namespace Infraestructure.Manager
                     reader.GetFieldType(i),
                     reader.GetValue(i));
 
-                _fields.Add(currentField);
+                fields.Add(currentField);
             }
 
-            return new NestedLine(_fields);
+            return new NestedLine(fields);
         }
 
         public NestedField GetId(String entityName, int level)
@@ -255,36 +195,15 @@ namespace Infraestructure.Manager
 
         public List<NestedLine> Lines => _lines;
 
-        public NestedLines FilterByEntityName(String entityName, int level = 1)
-        {
-            return new NestedLines(_lines.Select(x => new NestedLine(x.FieldsByLevel(level)))
-                .Where(x => x.LevelName(level) == entityName)
-                .ToList());
-        }
-
         public NestedField GetId(String entityName, int level, NestedLine line)
         {
             return line.Fields.Find(x => x.Name[level] == "Id" && x.Name[level - 1] == entityName);
-        }
-
-        public IEnumerable<IGrouping<object, NestedLine>> GroupById(int level = 1)
-        {
-            return _lines.Select(x => new NestedLine(x.FieldsByLevel(level)))
-               .GroupBy(x => GetId("Id", level, x)?.Value);
-        }
-
-        public IEnumerable<IGrouping<object, NestedLine>> GroupByEntityName(int level)
-        {
-            return _lines.Select(x => new NestedLine(x.FieldsByLevel(level)))
-               .GroupBy(x => GetId("Id", level, x)?.Value);
         }
     }
 
     public class NestedEntities
     {
-        //public Dictionary<Tuple<String, Type>, NestedEntity> _entitiesByIdAndType = new Dictionary<Tuple<String, Type>, NestedEntity>();
-
-        List<NestedEntity> _entities = new List<NestedEntity>();
+        readonly List<NestedEntity> _entities = new List<NestedEntity>();
 
         public List<NestedEntity> Entities => _entities;
 
@@ -294,21 +213,6 @@ namespace Infraestructure.Manager
 
             return this;
         }
-
-        //public NestedEntities Add(NestedEntity entity)
-        //{
-        //    var currentEntityTuple = new Tuple<string, Type>(entity.EntityName, entity.EntityType);
-        //    if (_entitiesByIdAndType.ContainsKey(currentEntityTuple))
-        //    {
-        //        _entitiesByIdAndType[currentEntityTuple].NestedLines.AddRange(entity.NestedLines);
-        //    }
-        //    else
-        //    {
-        //        _entitiesByIdAndType.Add(currentEntityTuple, entity);
-        //    }
-
-        //    return this;
-        //}
     }
 
     public class NestedEntity
@@ -336,11 +240,6 @@ namespace Infraestructure.Manager
         {
             Childs.Add(entityName, nestedEntity);
         }
-
-        internal void BuildEntity()
-        {
-
-        }
     }
 
     public class NestedField
@@ -357,7 +256,6 @@ namespace Infraestructure.Manager
         public Type Type { get; set; }
 
         public object Value { get; set; }
-
 
         public String PropertyName()
         {
