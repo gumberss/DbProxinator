@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Manager\Nested.cs" />
     <Compile Include="Manager\SqlManager.cs" />
+    <Compile Include="Manager\SqlManagerNested.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

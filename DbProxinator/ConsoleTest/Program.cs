@@ -29,13 +29,32 @@ namespace ConsoleTest
                 inner join sys.schemas sch on sch.schema_id = obj.schema_id
                 where obj.type='U'
                 ";
-            var sqlManager = new SqlManager(connString);
+            //var sqlManager = new SqlManager(connString);
 
-            var list = sqlManager.ExecuteReader<TableSchemaEntity>(query);
+            //var list = sqlManager.ExecuteReader<TableSchemaEntity>(query);
 
-            ITableSchemaParser tableParser = new TableSchemaParser();
+            //ITableSchemaParser tableParser = new TableSchemaParser();
 
-            var businessData = tableParser.Parse(list);
+            //var businessData = tableParser.Parse(list);
+
+
+            var connString2 = @"Server=localhost;Database=Expenses;User Id=sa;Password=HereWeG0Again!;";
+
+            var query2 = @"SELECT  
+	e.[Id] 'Expense.Id',
+	e.[Title] 'Expense.Title',
+	ei.[Id] 'Expense.ExpenseItem.Id',
+	ei.[Cost] 'Expense.ExpenseItem.Cost',
+	ei.[ExpenseId] 'Expense.ExpenseItem.ExpenseId'
+  FROM [Expenses].[expenses].[Expenses] e
+  inner join [Expenses].[expenses].[ExpenseItems] ei on e.id = ei.expenseid";
+
+            Nested.AddEntities<Expense>();
+            Nested.AddEntities<ExpenseItem>();
+
+            var sql = new SqlManagerNested(connString2);
+
+            var expenses = sql.ExecuteReader<Expense>(query2);
 
         }
     }
