@@ -10,7 +10,7 @@ namespace Domain.Entities
 
         public String Title { get; set; }
 
-        public ExpenseItem ExpenseItem { get; set; }
+        public List<ExpenseItem> ExpenseItem { get; set; }
     }
 
     public class ExpenseItem

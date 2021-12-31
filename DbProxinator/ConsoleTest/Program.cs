@@ -41,13 +41,13 @@ namespace ConsoleTest
             var connString2 = @"Server=localhost;Database=Expenses;User Id=sa;Password=HereWeG0Again!;";
 
             var query2 = @"SELECT  
-	e.[Id] 'Expense.Id',
-	e.[Title] 'Expense.Title',
-	ei.[Id] 'Expense.ExpenseItem.Id',
-	ei.[Cost] 'Expense.ExpenseItem.Cost',
-	ei.[ExpenseId] 'Expense.ExpenseItem.ExpenseId'
-  FROM [Expenses].[expenses].[Expenses] e
-  inner join [Expenses].[expenses].[ExpenseItems] ei on e.id = ei.expenseid";
+	                        e.[Id] 'Expense.Id',
+	                        e.[Title] 'Expense.Title',
+	                        ei.[Id] 'Expense.ExpenseItem.Id',
+	                        ei.[Cost] 'Expense.ExpenseItem.Cost',
+	                        ei.[ExpenseId] 'Expense.ExpenseItem.ExpenseId'
+                          FROM [Expenses].[expenses].[Expenses] e
+                          inner join [Expenses].[expenses].[ExpenseItems] ei on e.id = ei.expenseid";
 
             Nested.AddEntities<Expense>();
             Nested.AddEntities<ExpenseItem>();

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
+
 using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Infraestructure.Manager
 {
     public class Nested
@@ -92,9 +93,29 @@ namespace Infraestructure.Manager
 
                     if (childProperty is null) continue;
 
-                    if (childProperty.PropertyType.GUID != child.Value.EntityType.GUID) continue;
+                    if (childProperty.PropertyType.GetInterfaces().Contains(typeof(IEnumerable)))
+                    {
+                        var genericArgumentGuid = childProperty.PropertyType.GetGenericArguments().First().GUID;
 
-                    childProperty.SetValue(entity, BuildEntities(new NestedEntities().Add(child.Value)).FirstOrDefault());
+                        if (genericArgumentGuid != child.Value.EntityType.GUID) continue;
+
+                        var childEntities = BuildEntities(new NestedEntities().Add(child.Value));
+
+                        object instance = Activator.CreateInstance(childProperty.PropertyType);
+
+                        IList list = (IList)instance;
+
+                        foreach (var item in childEntities)
+                        {
+                            list.Add(item);
+                        }
+
+                        childProperty.SetValue(entity, list);
+                    }
+                    else
+                    {
+                        childProperty.SetValue(entity, BuildEntities(new NestedEntities().Add(child.Value)).FirstOrDefault());
+                    }
                 }
 
                 returnEntities.Add((object)entity);
